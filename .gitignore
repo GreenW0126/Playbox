@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+*.tsbuildinfo
+
+# Personal dogfooding files stay local and never enter the public repository.
+.env
+Start *.command
+design/
+dogfood-log.md
