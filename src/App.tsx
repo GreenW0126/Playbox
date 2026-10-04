@@ -21,6 +21,10 @@ const roles: Array<{ name: Role; note: string; Icon: typeof BookOpen }> = [
   { name: 'Athlete', note: 'Train and recover', Icon: Dumbbell },
 ];
 
+export const durationOptionsForRole = (role: Role) => (
+  role === 'Student' ? [15, 30, 60, 180] : [15, 30, 60, 90]
+);
+
 const ATHLETE_BLOCK_NAMES: Record<string, string[]> = {
   Strength: ['Upper Body', 'Lower Body', 'Full Body'],
   Relief: ['Neck & Shoulders', 'Back', 'Wrists', 'Full Body'],
@@ -86,11 +90,12 @@ function PlayboxApp() {
   const restoredSnapshot = useMemo(() => loadPersistedSnapshot(), []);
   const restoredUserData = useMemo(() => loadPersistedUserData(), []);
   const [snapshot, send, actorRef] = useMachine(playboxMachine, { snapshot: restoredSnapshot });
+  const durationOptions = durationOptionsForRole(snapshot.context.role);
   const [task, setTask] = useState(snapshot.context.task);
   const [duration, setDuration] = useState(snapshot.context.durationMinutes);
-  const [customDurationOpen, setCustomDurationOpen] = useState(![15, 30, 60, 90].includes(snapshot.context.durationMinutes));
+  const [customDurationOpen, setCustomDurationOpen] = useState(!durationOptions.includes(snapshot.context.durationMinutes));
   const [customDurationInput, setCustomDurationInput] = useState(
-    ![15, 30, 60, 90].includes(snapshot.context.durationMinutes) ? String(snapshot.context.durationMinutes) : '',
+    !durationOptions.includes(snapshot.context.durationMinutes) ? String(snapshot.context.durationMinutes) : '',
   );
   const [selectedHistoryTask, setSelectedHistoryTask] = useState<string | null>(null);
   const state = snapshot.value;
@@ -145,7 +150,7 @@ function PlayboxApp() {
 
   if (state === 'task') return <SetupPage step="1." title="CHOOSE A TASK" subtitle="Start from what you actually want to work on."><section className="card form-card"><Back onClick={() => send({ type: 'BACK', target: 'role' })}/><span className="chip">{snapshot.context.role}</span><h2>What are you working on?</h2><input value={task} onChange={e => setTask(e.target.value)}/><label>Recent tasks</label><div className="recent">{recentTasks.map(item => <button key={item} onClick={() => setTask(item)}>{item}</button>)}</div><Continue disabled={!task.trim()} onClick={() => send({ type: 'SUBMIT_TASK', task })}/></section></SetupPage>;
 
-  if (state === 'duration') return <SetupPage step="2." title="SET A DURATION" subtitle="Choose how long you want to stay with it."><section className="card form-card"><Back onClick={() => send({ type: 'BACK', target: 'task' })}/><h2>How long?</h2><div className="durations">{[15,30,60,90].map(m => <button className={!customDurationOpen && duration === m ? 'selected' : ''} key={m} onClick={() => { setCustomDurationOpen(false); setDuration(m); }}>{m} min</button>)}<button className={customDurationOpen ? 'selected' : ''} onClick={() => { setCustomDurationOpen(true); setCustomDurationInput(''); }}>Custom</button></div>{customDurationOpen && <div className="custom-duration"><input autoFocus type="number" inputMode="numeric" min="1" step="1" placeholder="Enter minutes" value={customDurationInput} onChange={event => { const value = event.target.value; setCustomDurationInput(value); if (/^\d+$/.test(value) && Number(value) > 0) setDuration(Number(value)); }}/><span>min</span></div>}{(!customDurationOpen || customDurationValid) && <div className="ends"><small>Ends at</small><b>{endTime}</b><span>(in {duration} min)</span></div>}<Continue disabled={customDurationOpen && !customDurationValid} onClick={() => send({ type: 'SELECT_DURATION', minutes: duration })}/></section></SetupPage>;
+  if (state === 'duration') return <SetupPage step="2." title="SET A DURATION" subtitle="Choose how long you want to stay with it."><section className="card form-card"><Back onClick={() => send({ type: 'BACK', target: 'task' })}/><h2>How long?</h2><div className="durations">{durationOptions.map(m => <button className={!customDurationOpen && duration === m ? 'selected' : ''} key={m} onClick={() => { setCustomDurationOpen(false); setDuration(m); }}>{m} min</button>)}<button className={customDurationOpen ? 'selected' : ''} onClick={() => { setCustomDurationOpen(true); setCustomDurationInput(''); }}>Custom</button></div>{customDurationOpen && <div className="custom-duration"><input autoFocus type="number" inputMode="numeric" min="1" step="1" placeholder="Enter minutes" value={customDurationInput} onChange={event => { const value = event.target.value; setCustomDurationInput(value); if (/^\d+$/.test(value) && Number(value) > 0) setDuration(Number(value)); }}/><span>min</span></div>}{(!customDurationOpen || customDurationValid) && <div className="ends"><small>Ends at</small><b>{endTime}</b><span>(in {duration} min)</span></div>}<Continue disabled={customDurationOpen && !customDurationValid} onClick={() => send({ type: 'SELECT_DURATION', minutes: duration })}/></section></SetupPage>;
 
   if (state === 'space') return <SetupPage step="3." title="PREPARE YOUR SPACE" subtitle="Keep only what you need in view."><section className={`card form-card space-card${snapshot.context.role === 'Employee' ? ' employee-space' : ''}`}><Back onClick={() => send({ type: 'BACK', target: 'duration' })}/><h2>Clear your view for this task.</h2><p><strong>Anything inside the frame may ask for your attention.</strong><br/>Keep only what this task needs.</p><div className="scene-crop"><img src={snapshot.context.role === 'Athlete' ? './assets/prepare-space-athlete-v1.png' : './assets/prepare-space-v2.png'} alt={snapshot.context.role === 'Athlete' ? 'Yoga mat, dumbbells, resistance band and water bottle inside a visual reference frame' : 'Laptop, notebook, pen and desk lamp inside a visual reference frame'}/></div>{snapshot.context.role === 'Employee' && <div className="sound-environment"><strong>Sound environment</strong><div className="sound-options"><label><input type="radio" name="sound-environment" checked={snapshot.context.soundEnvironment === 'off'} onChange={() => send({ type: 'SET_SOUND_ENVIRONMENT', value: 'off' })}/><span>Off</span></label><label><input type="radio" name="sound-environment" checked={snapshot.context.soundEnvironment === 'external'} onChange={() => send({ type: 'SET_SOUND_ENVIRONMENT', value: 'external' })}/><span>On — I'll manage it outside Playbox</span></label></div></div>}<div className="space-actions"><button className="link" onClick={() => send({ type: 'SPACE_READY', prepared: false })}>Skip this step</button><Continue onClick={() => send({ type: 'SPACE_READY', prepared: true })}>Looks good</Continue></div></section></SetupPage>;
 
