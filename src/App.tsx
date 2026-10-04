@@ -185,7 +185,7 @@ function PlayboxApp() {
     </section></main></Localized>;
   }
 
-  if (state === 'closed') return <SetupPage step="5." title="SESSION COMPLETE" subtitle="A clear and satisfying closure."><section className="focus-card closed-card"><div className="mist"><i/><i/><i/></div><div className="closed-copy"><span><Check/></span><h2>Session complete.<br/>You are free.</h2><p>That's enough for now. Take a break. You've earned it.</p></div><button className="primary solo" onClick={() => send({ type: 'CLOSE' })}>Close</button></section></SetupPage>;
+  if (state === 'closed') return <SetupPage step="5." title="SESSION COMPLETE" subtitle="A clear and satisfying closure."><section className="focus-card closed-card"><div className="mist"><i/><i/><i/></div><div className="closed-copy"><span><Check/></span><h2>Session complete.</h2><p>That's enough for now. Take a break. You've earned it.</p></div><button className="primary solo" onClick={() => send({ type: 'CLOSE' })}>Close</button></section></SetupPage>;
 
   if (state === 'recovery') return <SetupPage step="6." title="RECOVERY PERIOD" subtitle="No immediate restart."><section className="card recovery-card"><span className="hourglass"><Hourglass/></span><p>Next session won’t be available until 5 min.</p><div className="recovery-message"><strong>Now<br/>exhale.</strong><span>Focus is finite.<br/>Working is like breathing.</span></div><button className="recovery-return" disabled={snapshot.context.recoveryRemaining > 0} onClick={() => send({ type: 'RESET_DEMO' })}>Return to {APP_NAME} <ArrowRight/></button></section></SetupPage>;
 

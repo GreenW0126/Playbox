@@ -95,7 +95,6 @@ const zh: Record<string, string> = {
   'SESSION COMPLETE': '专注完成',
   'A clear and satisfying closure.': '清晰、完整地结束。',
   'Session complete.': '本次专注完成。',
-  'You are free.': '休息一下',
   "That's enough for now. Take a break. You've earned it.": '去放空吧，你应得的。',
   Close: '结束',
   'RECOVERY PERIOD': '恢复时间',
